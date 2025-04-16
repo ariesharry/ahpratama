@@ -35,7 +35,7 @@ export async function generateMetadata() {
 
 export default function Blog() {
   return (
-    <Column maxWidth="s">
+    <Column maxWidth="m" gap="xl" horizontal="center">
       <script
         type="application/ld+json"
         suppressHydrationWarning
@@ -61,10 +61,9 @@ export default function Blog() {
       <Heading marginBottom="l" variant="display-strong-s">
         {blog.title}
       </Heading>
-      <Column fillWidth flex={1}>
-        <Posts range={[1, 3]} thumbnail />
-        <Posts range={[4]} columns="2" />
-      </Column>
+      <Flex fillWidth>
+        <Posts range={[1, 3]} thumbnail columns="3"/>
+      </Flex>
       {newsletter.display && <Mailchimp newsletter={newsletter} />}
     </Column>
   );

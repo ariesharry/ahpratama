@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newton's Laws Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .law-card {
+            transition: all 0.3s ease;
+        }
+        .law-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        #simulation-area {
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .object {
+            position: absolute;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            user-select: none;
+        }
+        .controls {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .force-arrow {
+            position: absolute;
+            height: 2px;
+            background-color: red;
+            transform-origin: left center;
+        }
+        .force-arrow::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid red;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-atom text-blue-500 text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">Newton's Laws Simulator</h1>
+            </div>
+            <nav class="flex space-x-4">
+                <a href="https://ahpratama.vercel.com" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition">Home</a>
+
+                <button onclick="showInfo()" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Introduction -->
+        <section class="mb-12 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Explore Newton's Laws of Motion</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">
+                Discover the fundamental principles that govern motion through interactive simulations.
+                Select a law to begin exploring how objects behave under different conditions.
+            </p>
+        </section>
+
+        <!-- Law Selection Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="law-card bg-white p-6 rounded-lg shadow-md cursor-pointer" onclick="showLaw(1)">
+                <div class="flex items-center mb-4">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-sliders-h text-blue-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">First Law</h3>
+                </div>
+                <p class="text-gray-600 mb-4">An object in motion stays in motion unless acted upon by an external force.</p>
+                <div class="text-blue-500 font-medium flex items-center">
+                    Explore <i class="fas fa-arrow-right ml-2"></i>
+                </div>
+            </div>
+
+            <div class="law-card bg-white p-6 rounded-lg shadow-md cursor-pointer" onclick="showLaw(2)">
+                <div class="flex items-center mb-4">
+                    <div class="bg-green-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-tachometer-alt text-green-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Second Law</h3>
+                </div>
+                <p class="text-gray-600 mb-4">Force equals mass times acceleration (F=ma).</p>
+                <div class="text-green-500 font-medium flex items-center">
+                    Explore <i class="fas fa-arrow-right ml-2"></i>
+                </div>
+            </div>
+
+            <div class="law-card bg-white p-6 rounded-lg shadow-md cursor-pointer" onclick="showLaw(3)">
+                <div class="flex items-center mb-4">
+                    <div class="bg-purple-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-exchange-alt text-purple-500 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800">Third Law</h3>
+                </div>
+                <p class="text-gray-600 mb-4">For every action, there is an equal and opposite reaction.</p>
+                <div class="text-purple-500 font-medium flex items-center">
+                    Explore <i class="fas fa-arrow-right ml-2"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulation Area -->
+        <div id="law-content" class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <div id="law-1-content" class="hidden">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Newton's First Law (Law of Inertia)</h3>
+                <p class="text-gray-600 mb-6">
+                    An object at rest stays at rest and an object in motion stays in motion with the same speed and in the same direction 
+                    unless acted upon by an unbalanced force.
+                </p>
+                
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <div id="simulation-area-1" class="w-full h-64 mb-4 relative bg-gray-100 rounded-lg">
+                            <div id="object-1" class="object bg-blue-500 w-16 h-16">Object</div>
+                        </div>
+                        <div class="controls p-4">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2">Surface Friction</label>
+                                <input type="range" id="friction-slider-1" min="0" max="100" value="10" class="w-full">
+                            </div>
+                            <div class="flex space-x-4">
+                                <button onclick="startMotion1()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition">
+                                    Apply Force
+                                </button>
+                                <button onclick="resetSimulation1()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded transition">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-blue-50 p-6 rounded-lg">
+                        <h4 class="font-semibold text-lg mb-3 text-blue-700">Key Concepts</h4>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-blue-500 text-xs mt-1 mr-2"></i>
+                                <span>Objects naturally resist changes to their state of motion (inertia)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-blue-500 text-xs mt-1 mr-2"></i>
+                                <span>Without friction or other forces, objects would continue moving forever</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-blue-500 text-xs mt-1 mr-2"></i>
+                                <span>Seatbelts protect us by preventing our bodies from continuing forward when a car stops suddenly</span>
+                            </li>
+                        </ul>
+                        <div class="mt-6 p-4 bg-white rounded border border-blue-100">
+                            <h5 class="font-medium text-blue-600 mb-2">Try This:</h5>
+                            <p>Adjust the friction slider to see how different surfaces affect how long the object continues moving.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="law-2-content" class="hidden">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Newton's Second Law (F=ma)</h3>
+                <p class="text-gray-600 mb-6">
+                    The acceleration of an object as produced by a net force is directly proportional to the magnitude of the net force, 
+                    in the same direction as the net force, and inversely proportional to the mass of the object.
+                </p>
+                
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex-1">
+                        <div id="simulation-area-2" class="w-full h-64 mb-4 relative bg-gray-100 rounded-lg">
+                            <div id="object-2" class="object bg-green-500 w-16 h-16">m = 5kg</div>
+                            <div id="force-arrow-2" class="force-arrow" style="display: none;"></div>
+                        </div>
+                        <div class="controls p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2">Mass (kg)</label>
+                                    <input type="range" id="mass-slider-2" min="1" max="10" value="5" class="w-full">
+                                    <div class="text-center mt-1 text-gray-600" id="mass-value-2">5 kg</div>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2">Force (N)</label>
+                                    <input type="range" id="force-slider-2" min="1" max="50" value="10" class="w-full">
+                                    <div class="text-center mt-1 text-gray-600" id="force-value-2">10 N</div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-4">
+                                <button onclick="applyForce2()" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded transition">
+                                    Apply Force
+                                </button>
+                                <button onclick="resetSimulation2()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded transition">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-green-50 p-6 rounded-lg">
+                        <h4 class="font-semibold text-lg mb-3 text-green-700">Key Concepts</h4>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-green-500 text-xs mt-1 mr-2"></i>
+                                <span>More force = more acceleration (if mass stays the same)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-green-500 text-xs mt-1 mr-2"></i>
+                                <span>More mass = less acceleration (if force stays the same)</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-green-500 text-xs mt-1 mr-2"></i>
+                                <span>Acceleration is always in the same direction as the net force</span>
+                            </li>
+                        </ul>
+                        <div class="mt-6 p-4 bg-white rounded border border-green-100">
+                            <h5 class="font-medium text-green-600 mb-2">Try This:</h5>
+                            <p>Keep the force constant and increase the mass to see how acceleration decreases. Then keep mass constant and increase force to see greater acceleration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="law-3-content" class="hidden">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Newton's Third Law (Action-Reaction)</h3>
+                <p class="text-gray-600 mb-6">
+                  When the object hits the wall, it exerts a force <strong>(F)</strong> on the wall (action), and the wall exerts an equal and opposite force <strong>(F)</strong> on the object (reaction). The object stops upon impact.
+                </p>
+              
+                <div class="flex flex-col md:flex-row gap-6">
+                  <div class="flex-1">
+                    <div id="simulation-area-3" class="w-full h-64 mb-4 relative bg-gray-100 rounded-lg">
+                      <div id="object-3" class="object bg-purple-500 w-16 h-16 absolute top-24 left-[50px] flex items-center justify-center text-white font-bold">F</div>
+                      <div id="wall-3" class="absolute top-0 h-full w-4 bg-gray-600" style="left: 300px;"></div>
+              
+                      <!-- Action Arrow -->
+                      <div id="force-arrow-action" class="force-arrow absolute bg-red-500 h-1" style="display: none;"></div>
+                      <div id="force-label-action" class="absolute text-red-600 font-bold text-sm" style="display: none;">F</div>
+              
+                      <!-- Reaction Arrow -->
+                      <div id="force-arrow-reaction" class="force-arrow absolute bg-blue-500 h-1" style="display: none;"></div>
+                      <div id="force-label-reaction" class="absolute text-blue-600 font-bold text-sm" style="display: none;">F</div>
+                    </div>
+              
+                    <div class="controls p-4">
+                      <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">Force Value (F)</label>
+                        <input type="range" id="mass-slider-3" min="1" max="10" value="5" class="w-full">
+                        <div class="text-center mt-1 text-gray-600" id="mass-value-3">F = 5</div>
+                      </div>
+                      <div class="flex space-x-4">
+                        <button onclick="launchObject()" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded transition">
+                          Launch Object
+                        </button>
+                        <button onclick="resetSimulation3()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded transition">
+                          Reset
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+              
+                  <div class="flex-1 bg-purple-50 p-6 rounded-lg">
+                    <h4 class="font-semibold text-lg mb-3 text-purple-700">Key Concepts</h4>
+                    <ul class="space-y-3 text-gray-700">
+                      <li class="flex items-start"><i class="fas fa-circle text-purple-500 text-xs mt-1 mr-2"></i> Action and reaction forces occur simultaneously upon collision.</li>
+                      <li class="flex items-start"><i class="fas fa-circle text-purple-500 text-xs mt-1 mr-2"></i> Forces are equal in magnitude (F) but opposite in direction.</li>
+                      <li class="flex items-start"><i class="fas fa-circle text-purple-500 text-xs mt-1 mr-2"></i> The object stops immediately after hitting the wall.</li>
+                    </ul>
+                    <div class="mt-6 p-4 bg-white rounded border border-purple-100">
+                      <h5 class="font-medium text-purple-600 mb-2">Try This:</h5>
+                      <p>Observe how changing the force value (F) affects the object's speed, but action and reaction remain equal and opposite.</p>
+                    </div>
+                  </div>
+                </div>
+            </div>
+
+            <div id="info-content" class="hidden">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">About Newton's Laws</h3>
+                <div class="prose max-w-none text-gray-700">
+                    <p>Sir Isaac Newton's three laws of motion describe the relationship between a body and the forces acting upon it, and its motion in response to those forces.</p>
+                    
+                    <h4 class="text-xl font-semibold mt-6 mb-3 text-gray-800">Educational Value</h4>
+                    <p>This simulator helps students visualize and experiment with Newton's laws through interactive demonstrations. By adjusting parameters and observing the results, students can develop an intuitive understanding of:</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>How forces affect motion</li>
+                        <li>The relationship between force, mass, and acceleration</li>
+                        <li>The nature of action-reaction force pairs</li>
+                        <li>Real-world applications of these fundamental physics principles</li>
+                    </ul>
+                    
+                    <h4 class="text-xl font-semibold mt-6 mb-3 text-gray-800">How to Use</h4>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li>Select one of Newton's three laws from the top navigation or cards</li>
+                        <li>Adjust the simulation parameters using the sliders</li>
+                        <li>Click "Apply Force" to see the law in action</li>
+                        <li>Experiment with different settings to observe how they affect the outcome</li>
+                        <li>Read the explanations and try the suggested activities</li>
+                    </ol>
+                    
+                    <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+                        <h5 class="font-semibold text-blue-700 mb-2">Tip for Teachers</h5>
+                        <p>Use these simulations to demonstrate concepts before formal explanation (predict-observe-explain strategy), or after explanation to reinforce learning. Encourage students to make predictions before running each simulation.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="welcome-content" class="text-center py-12">
+                <div class="max-w-2xl mx-auto">
+                    <i class="fas fa-atom text-6xl text-blue-400 mb-6"></i>
+                    <h3 class="text-3xl font-bold text-gray-800 mb-4">Welcome to Newton's Laws Simulator</h3>
+                    <p class="text-gray-600 mb-8 text-lg">
+                        Select one of Newton's three laws of motion from the buttons above or the cards below to begin exploring how forces affect motion.
+                    </p>
+                    <div class="flex justify-center space-x-4">
+                        <button onclick="showLaw(1)" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-6 rounded-lg transition">
+                            First Law
+                        </button>
+                        <button onclick="showLaw(2)" class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg transition">
+                            Second Law
+                        </button>
+                        <button onclick="showLaw(3)" class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-6 rounded-lg transition">
+                            Third Law
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-gray-600">&copy; 2023 Physics Education Tools</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-500 hover:text-blue-500 transition">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-blue-500 transition">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-blue-500 transition">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-blue-500 transition">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Show the welcome content initially
+        document.addEventListener('DOMContentLoaded', function() {
+            showWelcome();
+            setupSimulation1();
+            setupSimulation2();
+            setupSimulation3();
+        });
+
+        // Navigation functions
+        function showWelcome() {
+            hideAllContent();
+            document.getElementById('welcome-content').classList.remove('hidden');
+        }
+
+        function showLaw(lawNumber) {
+            hideAllContent();
+            document.getElementById(`law-${lawNumber}-content`).classList.remove('hidden');
+        }
+
+        function showInfo() {
+            hideAllContent();
+            document.getElementById('info-content').classList.remove('hidden');
+        }
+
+        function hideAllContent() {
+            const contents = ['welcome', 'law-1', 'law-2', 'law-3', 'info'];
+            contents.forEach(content => {
+                const element = document.getElementById(`${content}-content`);
+                if (element) element.classList.add('hidden');
+            });
+        }
+
+        // Simulation 1: First Law (Inertia)
+        let object1Pos = 50;
+        let object1Velocity = 0;
+        let friction1 = 0.1;
+        let animationId1 = null;
+        let isMoving1 = false;
+
+        function setupSimulation1() {
+            const object1 = document.getElementById('object-1');
+            object1.style.left = '50px';
+            object1.style.top = '100px';
+            
+            const frictionSlider = document.getElementById('friction-slider-1');
+            frictionSlider.addEventListener('input', function() {
+                friction1 = this.value / 1000;
+            });
+        }
+
+        function startMotion1() {
+            if (isMoving1) return;
+            
+            isMoving1 = true;
+            object1Velocity = 5;
+            animateObject1();
+        }
+
+        function animateObject1() {
+            const object1 = document.getElementById('object-1');
+            const container = document.getElementById('simulation-area-1');
+            const containerWidth = container.offsetWidth;
+            const objectWidth = object1.offsetWidth;
+            
+            // Apply friction (deceleration)
+            if (object1Velocity > 0) {
+                object1Velocity -= friction1;
+                if (object1Velocity < 0) object1Velocity = 0;
+            }
+            
+            // Update position
+            object1Pos += object1Velocity;
+            
+            // Check boundaries
+            if (object1Pos + objectWidth > containerWidth) {
+                object1Pos = containerWidth - objectWidth;
+                object1Velocity = 0;
+            }
+            
+            if (object1Pos < 0) {
+                object1Pos = 0;
+                object1Velocity = 0;
+            }
+            
+            object1.style.left = `${object1Pos}px`;
+            
+            // Continue animation if still moving
+            if (object1Velocity > 0) {
+                animationId1 = requestAnimationFrame(animateObject1);
+            } else {
+                isMoving1 = false;
+            }
+        }
+
+        function resetSimulation1() {
+            if (animationId1) {
+                cancelAnimationFrame(animationId1);
+            }
+            isMoving1 = false;
+            object1Pos = 50;
+            object1Velocity = 0;
+            const object1 = document.getElementById('object-1');
+            object1.style.left = '50px';
+        }
+
+        // Simulation 2: Second Law (F=ma)
+        let object2Pos = 50;
+        let object2Velocity = 0;
+        let object2Mass = 5;
+        let appliedForce2 = 10;
+        let animationId2 = null;
+        let isMoving2 = false;
+
+        function setupSimulation2() {
+            const object2 = document.getElementById('object-2');
+            object2.style.left = '50px';
+            object2.style.top = '100px';
+            
+            const massSlider = document.getElementById('mass-slider-2');
+            const forceSlider = document.getElementById('force-slider-2');
+            const massValue = document.getElementById('mass-value-2');
+            const forceValue = document.getElementById('force-value-2');
+            
+            massSlider.addEventListener('input', function() {
+                object2Mass = parseInt(this.value);
+                massValue.textContent = `${object2Mass} kg`;
+                object2.textContent = `m = ${object2Mass}kg`;
+            });
+            
+            forceSlider.addEventListener('input', function() {
+                appliedForce2 = parseInt(this.value);
+                forceValue.textContent = `${appliedForce2} N`;
+            });
+        }
+
+        function applyForce2() {
+            if (isMoving2) return;
+            
+            isMoving2 = true;
+            
+            // Show force arrow
+            const forceArrow = document.getElementById('force-arrow-2');
+            const object2 = document.getElementById('object-2');
+            const objectTop = parseInt(object2.style.top);
+            const objectLeft = parseInt(object2.style.left);
+            const objectWidth = object2.offsetWidth;
+            
+            forceArrow.style.display = 'block';
+            forceArrow.style.width = '60px';
+            forceArrow.style.left = `${objectLeft + objectWidth}px`;
+            forceArrow.style.top = `${objectTop + object2.offsetHeight/2}px`;
+            
+            // Calculate acceleration (a = F/m)
+            const acceleration = appliedForce2 / object2Mass;
+            object2Velocity = acceleration * 2; // Scale for visualization
+            
+            animateObject2();
+        }
+
+        function animateObject2() {
+            const object2 = document.getElementById('object-2');
+            const container = document.getElementById('simulation-area-2');
+            const containerWidth = container.offsetWidth;
+            const objectWidth = object2.offsetWidth;
+            
+            // Update position
+            object2Pos += object2Velocity;
+            
+            // Check boundaries
+            if (object2Pos + objectWidth > containerWidth) {
+                object2Pos = containerWidth - objectWidth;
+                object2Velocity = 0;
+                isMoving2 = false;
+                document.getElementById('force-arrow-2').style.display = 'none';
+            }
+            
+            object2.style.left = `${object2Pos}px`;
+            
+            // Continue animation if still moving
+            if (object2Velocity > 0) {
+                animationId2 = requestAnimationFrame(animateObject2);
+            }
+        }
+
+        function resetSimulation2() {
+            if (animationId2) {
+                cancelAnimationFrame(animationId2);
+            }
+            isMoving2 = false;
+            object2Pos = 50;
+            object2Velocity = 0;
+            const object2 = document.getElementById('object-2');
+            object2.style.left = '50px';
+            document.getElementById('force-arrow-2').style.display = 'none';
+        }
+
+        // Simulation 3: Third Law (Object-Wall Collision)
+        let object3Pos = 50;
+        let object3Velocity = 0;
+        let object3Force = 5;
+        let animationId3 = null;
+        let isMoving3 = false;
+        const WALL_POSITION = 300;
+
+        function setupSimulation3() {
+        const forceSlider = document.getElementById('mass-slider-3');
+        const forceValue = document.getElementById('mass-value-3');
+
+        forceSlider.addEventListener('input', function () {
+            object3Force = parseInt(this.value);
+            forceValue.textContent = `F = ${object3Force}`;
+            document.getElementById('object-3').textContent = `F`;
+        });
+        }
+
+        function launchObject() {
+        if (isMoving3) return;
+        isMoving3 = true;
+        object3Velocity = object3Force;
+        animateObject3();
+        }
+
+        function animateObject3() {
+        const object = document.getElementById('object-3');
+        const objectWidth = object.offsetWidth;
+
+        object3Pos += object3Velocity;
+
+        if (object3Pos + objectWidth >= WALL_POSITION) {
+            object3Pos = WALL_POSITION - objectWidth;
+            object3Velocity = 0;
+            isMoving3 = false;
+            object.style.left = `${object3Pos}px`;
+            showForces();
+            return;
+        }
+
+        object.style.left = `${object3Pos}px`;
+
+        if (isMoving3) {
+            animationId3 = requestAnimationFrame(animateObject3);
+        }
+        }
+
+        function showForces() {
+            const object = document.getElementById('object-3');
+            const objectTop = object.offsetTop;
+            const objectMid = objectTop + object.offsetHeight / 2;
+            const objectRight = object3Pos + object.offsetWidth;
+          
+            const arrowAction = document.getElementById('force-arrow-action');
+            const arrowReaction = document.getElementById('force-arrow-reaction');
+            const labelAction = document.getElementById('force-label-action');
+            const labelReaction = document.getElementById('force-label-reaction');
+          
+            const arrowLength = 60;
+          
+            // Action: from wall (right) pointing to the right
+            arrowAction.style.display = 'block';
+            arrowAction.style.width = `${arrowLength}px`;
+            arrowAction.style.left = `${WALL_POSITION + 4}px`; // start at wall edge
+            arrowAction.style.top = `${objectMid}px`;
+            arrowAction.style.transform = 'rotate(0deg)';
+          
+            labelAction.style.display = 'block';
+            labelAction.style.left = `${WALL_POSITION + 10}px`;
+            labelAction.style.top = `${objectMid - 20}px`;
+            labelAction.textContent = `F = ${object3Force}`;
+          
+            // Reaction: from object (box) pointing to the left
+            arrowReaction.style.display = 'block';
+            arrowReaction.style.width = `${arrowLength}px`;
+            arrowReaction.style.left = `${objectRight - arrowLength}px`; // arrow starts at object right
+            arrowReaction.style.top = `${objectMid}px`;
+            arrowReaction.style.transform = 'rotate(180deg)';
+          
+            labelReaction.style.display = 'block';
+            labelReaction.style.left = `${objectRight - arrowLength - 10}px`;
+            labelReaction.style.top = `${objectMid - 20}px`;
+            labelReaction.textContent = `F = ${object3Force}`;
+          }
+
+        function resetSimulation3() {
+        if (animationId3) cancelAnimationFrame(animationId3);
+        isMoving3 = false;
+        object3Pos = 50;
+        object3Velocity = 0;
+
+        document.getElementById('object-3').style.left = '50px';
+
+        document.getElementById('force-arrow-action').style.display = 'none';
+        document.getElementById('force-arrow-reaction').style.display = 'none';
+        document.getElementById('force-label-action').style.display = 'none';
+        document.getElementById('force-label-reaction').style.display = 'none';
+        }
+
+        setupSimulation3();
+    </script>
+</body>
+</html>
