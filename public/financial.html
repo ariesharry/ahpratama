@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WealthPath - Smart Investing Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .animate-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .risk-meter {
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #4ade80, #f59e0b, #ef4444);
+        }
+        .risk-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: absolute;
+            top: -6px;
+            transform: translateX(-50%);
+            transition: left 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-chart-line text-blue-600 text-2xl"></i>
+                <h1 class="text-xl font-bold text-gray-800">WealthPath</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="https://ahpratama.vercel.app" class="text-gray-600 hover:text-blue-600 transition">Home</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition">Features</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition">Resources</a>
+                <a href="#" class="text-gray-600 hover:text-blue-600 transition">About</a>
+            </nav>
+            <button class="md:hidden text-gray-600" id="mobile-menu-button">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden bg-white py-2 px-4 shadow-md" id="mobile-menu">
+            <a href="https://ahpratama.vercel.app" class="block py-2 text-gray-600 hover:text-blue-600">Home</a>
+            <a href="#" class="block py-2 text-gray-600 hover:text-blue-600">Features</a>
+            <a href="#" class="block py-2 text-gray-600 hover:text-blue-600">Resources</a>
+            <a href="#" class="block py-2 text-gray-600 hover:text-blue-600">About</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Plan Your Financial Future</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Set your investment goals and let our smart algorithm calculate the optimal portfolio allocation for your needs.</p>
+        </div>
+
+        <!-- Goal Setting Form -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 max-w-3xl mx-auto">
+            <h3 class="text-xl font-semibold text-gray-800 mb-6">Define Your Investment Goal</h3>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-gray-700 mb-2">Goal Amount ($)</label>
+                    <input type="number" id="goal-amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 100000">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2">Current Savings ($)</label>
+                    <input type="number" id="current-savings" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 20000">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2">Time Horizon (years)</label>
+                    <input type="number" id="time-horizon" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 10">
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 mb-2">Monthly Contribution ($)</label>
+                    <input type="number" id="monthly-contribution" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. 500">
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <label class="block text-gray-700 mb-2">Risk Tolerance</label>
+                <div class="relative pt-4">
+                    <div class="risk-meter relative w-full">
+                        <div class="risk-indicator bg-blue-600 shadow-md" id="risk-indicator" style="left: 50%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-2">
+                        <span>Conservative</span>
+                        <span>Moderate</span>
+                        <span>Aggressive</span>
+                    </div>
+                    <input type="range" id="risk-tolerance" min="1" max="10" value="5" class="w-full mt-2">
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-center">
+                <button id="calculate-btn" class="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition shadow-md hover:shadow-lg flex items-center">
+                    <i class="fas fa-calculator mr-2"></i> Calculate Optimal Portfolio
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden animate-in max-w-6xl mx-auto">
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">Your Recommended Portfolio</h3>
+                    <button id="save-plan" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium hover:bg-green-200 transition flex items-center">
+                        <i class="fas fa-save mr-2"></i> Save Plan
+                    </button>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-700 mb-3">Goal Summary</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Target Amount:</span>
+                                <span class="font-medium" id="target-amount-display">$100,000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Time Horizon:</span>
+                                <span class="font-medium" id="time-horizon-display">10 years</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Required Return:</span>
+                                <span class="font-medium" id="required-return-display">7.2% annually</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Success Probability:</span>
+                                <span class="font-medium" id="success-probability-display">82%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-700 mb-3">Projected Growth</h4>
+                        <div class="h-40 flex items-end space-x-1" id="growth-chart">
+                            <!-- Chart bars will be inserted here by JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="font-medium text-gray-700 mb-4">Portfolio Allocation</h4>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8" id="portfolio-allocation">
+                    <!-- Portfolio cards will be inserted here by JS -->
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <h4 class="font-medium text-blue-700 mb-2 flex items-center">
+                        <i class="fas fa-lightbulb mr-2"></i> Investment Strategy
+                    </h4>
+                    <p class="text-gray-700" id="strategy-text">
+                        Based on your goals and risk tolerance, we recommend a balanced approach with periodic rebalancing.
+                        Consider dollar-cost averaging to mitigate market timing risks.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Alternative Scenarios</h3>
+                    <div class="space-y-4">
+                        <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">More Aggressive</span>
+                                <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">+15% potential</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">Higher returns but with increased volatility</p>
+                        </div>
+                        <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">More Conservative</span>
+                                <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">-20% risk</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">Lower returns but more stable growth</p>
+                        </div>
+                        <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <div class="flex justify-between items-center">
+                                <span class="font-medium">Extended Timeline</span>
+                                <span class="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded">+3 years</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">Lower monthly contributions needed</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">Next Steps</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-book text-blue-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Learn About Investing</h4>
+                                <p class="text-sm text-gray-600">Explore our educational resources</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-green-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-user-tie text-green-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Consult an Advisor</h4>
+                                <p class="text-sm text-gray-600">Get personalized advice</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-purple-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-chart-pie text-purple-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium">Track Your Progress</h4>
+                                <p class="text-sm text-gray-600">Set up automatic tracking</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Saved Plans Section -->
+        <div class="bg-white rounded-xl shadow-md p-6 mt-8 hidden" id="saved-plans">
+            <h3 class="text-xl font-semibold text-gray-800 mb-4">Your Saved Plans</h3>
+            <div class="border border-gray-200 rounded-lg divide-y divide-gray-200">
+                <div class="p-4 hover:bg-gray-50 cursor-pointer flex justify-between items-center">
+                    <div>
+                        <h4 class="font-medium">Retirement Fund</h4>
+                        <p class="text-sm text-gray-600">Target: $500,000 in 20 years</p>
+                    </div>
+                    <button class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="p-4 hover:bg-gray-50 cursor-pointer flex justify-between items-center">
+                    <div>
+                        <h4 class="font-medium">House Down Payment</h4>
+                        <p class="text-sm text-gray-600">Target: $80,000 in 5 years</p>
+                    </div>
+                    <button class="text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-4">WealthPath</h4>
+                    <p class="text-gray-600 text-sm">Smart investing tools to help you achieve your financial goals with confidence.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-4">Resources</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#" class="hover:text-blue-600">Blog</a></li>
+                        <li><a href="#" class="hover:text-blue-600">Calculators</a></li>
+                        <li><a href="#" class="hover:text-blue-600">Investment Guides</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-4">Company</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#" class="hover:text-blue-600">About Us</a></li>
+                        <li><a href="#" class="hover:text-blue-600">Careers</a></li>
+                        <li><a href="#" class="hover:text-blue-600">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-4">Connect</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-gray-600 hover:text-blue-600"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 mt-8 pt-6 text-sm text-gray-500">
+                <p>© 2023 WealthPath. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Risk tolerance slider
+        const riskSlider = document.getElementById('risk-tolerance');
+        const riskIndicator = document.getElementById('risk-indicator');
+        
+        riskSlider.addEventListener('input', function() {
+            const value = this.value;
+            const percent = ((value - 1) / 9) * 100;
+            riskIndicator.style.left = `${percent}%`;
+            
+            // Change color based on risk level
+            if (value < 4) {
+                riskIndicator.className = 'risk-indicator bg-green-500 shadow-md';
+            } else if (value < 7) {
+                riskIndicator.className = 'risk-indicator bg-yellow-500 shadow-md';
+            } else {
+                riskIndicator.className = 'risk-indicator bg-red-500 shadow-md';
+            }
+        });
+
+        // Calculate button click handler
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            // Get input values
+            const goalAmount = parseFloat(document.getElementById('goal-amount').value) || 0;
+            const currentSavings = parseFloat(document.getElementById('current-savings').value) || 0;
+            const timeHorizon = parseFloat(document.getElementById('time-horizon').value) || 1;
+            const monthlyContribution = parseFloat(document.getElementById('monthly-contribution').value) || 0;
+            const riskTolerance = parseInt(document.getElementById('risk-tolerance').value);
+            
+            // Validate inputs
+            if (goalAmount <= 0 || timeHorizon <= 0) {
+                alert('Please enter valid goal amount and time horizon');
+                return;
+            }
+            
+            // Calculate required annual return (simplified)
+            const totalContributions = currentSavings + (monthlyContribution * 12 * timeHorizon);
+            const requiredReturn = Math.pow(goalAmount / totalContributions, 1/timeHorizon) - 1;
+            
+            // Determine portfolio allocation based on risk tolerance
+            let portfolioAllocation = [];
+            let strategyText = '';
+            
+            if (riskTolerance <= 3) {
+                portfolioAllocation = [
+                    { name: 'Bonds', percentage: 70, color: 'bg-blue-500', return: 3.5, risk: 'Low' },
+                    { name: 'Dividend Stocks', percentage: 20, color: 'bg-green-500', return: 5.5, risk: 'Medium' },
+                    { name: 'Real Estate', percentage: 10, color: 'bg-purple-500', return: 4.5, risk: 'Medium' }
+                ];
+                strategyText = 'A conservative portfolio focused on capital preservation with steady income. Ideal for short-term goals or risk-averse investors.';
+            } else if (riskTolerance <= 7) {
+                portfolioAllocation = [
+                    { name: 'Stocks', percentage: 50, color: 'bg-green-500', return: 7.5, risk: 'Medium' },
+                    { name: 'Bonds', percentage: 30, color: 'bg-blue-500', return: 3.5, risk: 'Low' },
+                    { name: 'REITs', percentage: 15, color: 'bg-purple-500', return: 6.0, risk: 'Medium' },
+                    { name: 'Commodities', percentage: 5, color: 'bg-yellow-500', return: 4.0, risk: 'High' }
+                ];
+                strategyText = 'A balanced portfolio offering growth potential while managing risk. Suitable for medium-term goals with moderate risk tolerance.';
+            } else {
+                portfolioAllocation = [
+                    { name: 'Growth Stocks', percentage: 60, color: 'bg-green-600', return: 9.5, risk: 'High' },
+                    { name: 'Tech Stocks', percentage: 20, color: 'bg-indigo-500', return: 10.5, risk: 'High' },
+                    { name: 'Emerging Markets', percentage: 15, color: 'bg-red-500', return: 8.5, risk: 'Very High' },
+                    { name: 'Cryptocurrency', percentage: 5, color: 'bg-orange-500', return: 15.0, risk: 'Extreme' }
+                ];
+                strategyText = 'An aggressive growth portfolio targeting maximum returns. Best for long-term goals where you can weather short-term volatility.';
+            }
+            
+            // Calculate success probability (simplified)
+            const successProbability = Math.min(95, 70 + (riskTolerance * 3) - (requiredReturn * 10));
+            
+            // Update results display
+            document.getElementById('target-amount-display').textContent = `$${goalAmount.toLocaleString()}`;
+            document.getElementById('time-horizon-display').textContent = `${timeHorizon} years`;
+            document.getElementById('required-return-display').textContent = `${(requiredReturn * 100).toFixed(1)}% annually`;
+            document.getElementById('success-probability-display').textContent = `${Math.round(successProbability)}%`;
+            document.getElementById('strategy-text').textContent = strategyText;
+            
+            // Generate portfolio allocation cards
+            const portfolioContainer = document.getElementById('portfolio-allocation');
+            portfolioContainer.innerHTML = '';
+            
+            portfolioAllocation.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'portfolio-card bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition cursor-pointer';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h5 class="font-medium">${item.name}</h5>
+                        <span class="text-xs px-2 py-1 rounded-full ${item.risk === 'Low' ? 'bg-blue-100 text-blue-800' : 
+                            item.risk === 'Medium' ? 'bg-green-100 text-green-800' : 
+                            item.risk === 'High' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                            ${item.risk} Risk
+                        </span>
+                    </div>
+                    <div class="text-2xl font-bold mb-2">${item.percentage}%</div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div class="${item.color} h-2 rounded-full" style="width: ${item.percentage}%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Avg. Return: ${item.return}%</span>
+                    </div>
+                `;
+                portfolioContainer.appendChild(card);
+            });
+            
+            // Generate simple growth chart
+            const growthChart = document.getElementById('growth-chart');
+            growthChart.innerHTML = '';
+            
+            const years = Math.min(10, timeHorizon);
+            const maxHeight = 150; // px
+            
+            for (let i = 0; i < years; i++) {
+                const heightPercent = 20 + (i * (80 / (years - 1)));
+                const bar = document.createElement('div');
+                bar.className = 'bg-blue-500 rounded-t flex-1';
+                bar.style.height = `${heightPercent}%`;
+                bar.title = `Year ${i+1}: $${Math.round(currentSavings + (monthlyContribution * 12 * (i+1)) * Math.pow(1 + requiredReturn, i+1)).toLocaleString()}`;
+                growthChart.appendChild(bar);
+            }
+            
+            // Show results section
+            document.getElementById('results-section').classList.remove('hidden');
+            document.getElementById('saved-plans').classList.remove('hidden');
+            
+            // Scroll to results
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Save plan button
+        document.getElementById('save-plan').addEventListener('click', function() {
+            alert('Your investment plan has been saved! You can view it anytime in your profile.');
+        });
+    </script>
+</body>
+</html>

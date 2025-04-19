@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Spin the Wheel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      align-items: center;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    #spin_the_wheel {
+      display: inline-block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #wheel {
+      display: block;
+    }
+
+    #spin {
+      user-select: none;
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 30%;
+      height: 30%;
+      margin: -15%;
+      background: #EF4444;
+      color: white;
+      box-shadow: 0 0 0 8px currentColor, 0 0px 15px 5px rgba(0, 0, 0, 0.2);
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font: bold 1.2em 'Inter', sans-serif;
+    }
+
+    #spin:hover {
+      transform: scale(1.05);
+    }
+
+    #spin::after {
+      content: "";
+      position: absolute;
+      top: -17px;
+      border: 10px solid transparent;
+      border-bottom-color: #f7fafc;
+      border-top: none;
+    }
+
+    @media (max-width: 640px) {
+      #wheel {
+        width: 300px;
+        height: 300px;
+      }
+      #spin {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+    <header class="w-full bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <a href="#" class="flex items-center space-x-2 text-gray-800 hover:text-emerald-500 transition-colors">
+            <i class="fas fa-home text-emerald-500 text-xl"></i>
+            <span class="font-semibold hidden sm:inline">Home</span>
+        </a>
+        <button id="how-to-use" class="flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md transition-colors">
+            <i class="fas fa-question-circle"></i>
+            <span class="hidden sm:inline">How to Use</span>
+        </button>
+        </div>
+    </header>
+      
+
+  <main class="flex flex-col lg:flex-row w-full max-w-6xl mt-8 px-4 gap-8">
+    <div class="flex-1 flex flex-col items-center bg-white p-6 rounded-xl shadow-lg">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Spin the Wheel</h1>
+      <div id="spin_the_wheel">
+        <canvas id="wheel" width="400" height="400"></canvas>
+        <div id="spin">SPIN</div>
+      </div>
+      <div id="winner-display" class="mt-6 text-center hidden">
+        <p class="text-gray-600">Winner:</p>
+        <p id="winner-text" class="text-2xl font-bold text-emerald-500"></p>
+      </div>
+      <button id="remove-winner" class="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg hidden transition-colors">
+        <i class="fas fa-trash-alt mr-2"></i>
+        Remove Winner
+    </button>
+    </div>
+    <div class="flex-1 flex flex-col bg-white p-6 rounded-xl shadow-lg">
+      <h2 class="text-lg font-semibold text-gray-800 mb-4">Items</h2>
+      <textarea id="items-input" class="w-full h-40 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#08A87D] resize-none" placeholder="Enter items, one per line"></textarea>
+      <button id="update-items" class="mt-4 bg-[#08A87D] hover:bg-[#067A5E] text-white px-4 py-2 rounded-lg transition-colors">
+        <i class="fas fa-sync-alt mr-2"></i>
+        Update Items</button>
+      <div class="mt-6">
+        <h3 class="text-lg font-medium text-gray-700 mb-2">Quick Presets</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <button class="preset-btn bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-1 rounded text-sm" data-preset="colors">Colors</button>
+          <button class="preset-btn bg-purple-100 hover:bg-purple-200 text-purple-800 px-3 py-1 rounded text-sm" data-preset="fruits">Fruits</button>
+          <button class="preset-btn bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded text-sm" data-preset="animals">Animals</button>
+          <button class="preset-btn bg-yellow-100 hover:bg-yellow-200 text-yellow-800 px-3 py-1 rounded text-sm" data-preset="countries">Countries</button>
+          <button class="preset-btn bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm" data-preset="sports">Sports</button>
+          <button class="preset-btn bg-indigo-100 hover:bg-indigo-200 text-indigo-800 px-3 py-1 rounded text-sm" data-preset="movies">Movies</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="w-full bg-white shadow-inner mt-8 p-4 text-center text-gray-600">
+    <p>&copy; 2025 Spin the Wheel. All rights reserved.</p>
+  </footer>
+
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white p-6 rounded-xl max-w-md w-full shadow-lg">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">How to Use Spin the Wheel</h2>
+      <p class="mb-4 text-gray-600">1. Enter items in the textarea, one per line.</p>
+      <p class="mb-4 text-gray-600">2. Click "Update Items" to apply changes.</p>
+      <p class="mb-4 text-gray-600">3. Click "SPIN" to spin the wheel.</p>
+      <p class="mb-4 text-gray-600">4. When a winner is determined, click "Remove Winner" to remove it from the list.</p>
+      <button id="close-modal" class="bg-[#08A87D] hover:bg-[#067A5E] text-white px-4 py-2 rounded-lg w-full transition-colors">Close</button>
+    </div>
+  </div>
+
+  <!-- Confetti Effect -->
+  <canvas id="confetti" class="fixed top-0 left-0 w-full h-full pointer-events-none z-40 hidden"></canvas>
+
+  <script>
+    let items = [
+      { color: "#10B981", text: "#ffffff", label: "Item 1" },
+      { color: "#3B82F6", text: "#ffffff", label: "Item 2" },
+      { color: "#EC4899", text: "#ffffff", label: "Item 3" }
+    ];
+    const colors = [
+      '#10B981', '#3B82F6', '#EC4899', '#F59E0B', '#8B5CF6',
+      '#EF4444', '#14B8A6', '#D97706', '#6B7280', '#F472B6'
+    ];
+
+    // Preset items
+    const presets = {
+      colors: ['Red', 'Blue', 'Green', 'Yellow', 'Purple', 'Orange', 'Pink'],
+      fruits: ['Apple', 'Banana', 'Orange', 'Grapes', 'Mango', 'Strawberry', 'Watermelon'],
+      animals: ['Lion', 'Tiger', 'Elephant', 'Giraffe', 'Monkey', 'Zebra', 'Kangaroo'],
+      countries: ['USA', 'Canada', 'UK', 'Australia', 'Japan', 'France', 'Germany'],
+      sports: ['Soccer', 'Basketball', 'Tennis', 'Swimming', 'Golf', 'Baseball', 'Volleyball'],
+      movies: ['Inception', 'Avatar', 'Titanic', 'Star Wars', 'Jurassic Park', 'The Avengers', 'Frozen']
+    };
+
+    const events = {
+      listeners: {},
+      addListener: function (eventName, fn) {
+        this.listeners[eventName] = this.listeners[eventName] || [];
+        this.listeners[eventName].push(fn);
+      },
+      fire: function (eventName, ...args) {
+        if (this.listeners[eventName]) {
+          for (let fn of this.listeners[eventName]) {
+            fn(...args);
+          }
+        }
+      },
+    };
+
+    const rand = (m, M) => Math.random() * (M - m) + m;
+    const spinEl = document.querySelector("#spin");
+    const ctx = document.querySelector("#wheel").getContext("2d");
+    const dia = ctx.canvas.width;
+    const rad = dia / 2;
+    const PI = Math.PI;
+    const TAU = 2 * PI;
+    const friction = 0.991;
+    let angVel = 0;
+    let ang = 0;
+    let spinButtonClicked = false;
+    let winner = null;
+    let confettiActive = false;
+
+    function updateArc() {
+      return items.length ? TAU / items.length : 0;
+    }
+
+    function drawItem(item, i) {
+      const arc = updateArc();
+      const ang = arc * i;
+      ctx.save();
+      ctx.beginPath();
+      ctx.fillStyle = item.color;
+      ctx.moveTo(rad, rad);
+      ctx.arc(rad, rad, rad, ang, ang + arc);
+      ctx.lineTo(rad, rad);
+      ctx.fill();
+      ctx.translate(rad, rad);
+      ctx.rotate(ang + arc / 2);
+      ctx.textAlign = "right";
+      ctx.fillStyle = item.text;
+      ctx.font = "bold 20px 'Inter', sans-serif";
+      ctx.fillText(item.label, rad - 10, 10);
+      ctx.restore();
+    }
+
+    function rotate() {
+      const item = items[getIndex()];
+      ctx.canvas.style.transform = `rotate(${ang - PI / 2}rad)`;
+      spinEl.textContent = !angVel ? "SPIN" : (item ? item.label : "");
+      spinEl.style.background = item ? item.color : "#EF4444";
+      spinEl.style.color = item ? item.text : "#ffffff";
+    }
+
+    function frame() {
+      if (!angVel && spinButtonClicked) {
+        const finalItem = items[getIndex()];
+        if (finalItem) {
+          events.fire("spinEnd", finalItem);
+          winner = finalItem;
+          document.querySelector("#remove-winner").classList.remove("hidden");
+          document.getElementById("winner-display").classList.remove("hidden");
+          document.getElementById("winner-text").textContent = finalItem.label;
+          triggerConfetti();
+        }
+        spinButtonClicked = false;
+        return;
+      }
+      angVel *= friction;
+      if (angVel < 0.002) angVel = 0;
+      ang += angVel;
+      ang %= TAU;
+      rotate();
+    }
+
+    function engine() {
+      frame();
+      requestAnimationFrame(engine);
+    }
+
+    function getIndex() {
+      return Math.floor(items.length - (ang / TAU) * items.length) % items.length;
+    }
+
+    function updateItems() {
+      const input = document.querySelector("#items-input").value.trim();
+      const newItems = input.split("\n").filter(label => label.trim()).map((label, i) => ({
+        color: colors[i % colors.length],
+        text: "#ffffff",
+        label: label.trim()
+      }));
+      items = newItems.length ? newItems : [
+        { color: "#10B981", text: "#ffffff", label: "Item 1" },
+        { color: "#3B82F6", text: "#ffffff", label: "Item 2" },
+        { color: "#EC4899", text: "#ffffff", label: "Item 3" }
+      ];
+      ctx.clearRect(0, 0, dia, dia);
+      items.forEach(drawItem);
+      rotate();
+    }
+
+    function removeWinner() {
+      if (winner) {
+        items = items.filter(item => item !== winner);
+        ctx.clearRect(0, 0, dia, dia);
+        items.forEach(drawItem);
+        rotate();
+        document.querySelector("#remove-winner").classList.add("hidden");
+        document.getElementById("winner-display").classList.add("hidden");
+        winner = null;
+        document.querySelector("#items-input").value = items.map(s => s.label).join("\n");
+      }
+    }
+
+    // Load preset items
+    function loadPreset(presetName) {
+      const presetItems = presets[presetName];
+      if (presetItems) {
+        document.getElementById("items-input").value = presetItems.join("\n");
+        updateItems();
+      }
+    }
+
+    // Confetti effect
+    function triggerConfetti() {
+      if (confettiActive) return;
+      
+      confettiActive = true;
+      const canvas = document.getElementById("confetti");
+      canvas.classList.remove("hidden");
+      const confettiCtx = canvas.getContext("2d");
+      
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      const particles = [];
+      const particleCount = 150;
+      
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          r: Math.random() * 4 + 1,
+          d: Math.random() * particleCount,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          tilt: Math.floor(Math.random() * 10) - 10,
+          tiltAngle: Math.random() * 0.1,
+          tiltAngleIncrement: Math.random() * 0.07
+        });
+      }
+      
+      let angle = 0;
+      
+      function drawConfetti() {
+        confettiCtx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        angle += 0.01;
+        
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          
+          confettiCtx.beginPath();
+          confettiCtx.lineWidth = p.r;
+          confettiCtx.fillStyle = p.color;
+          confettiCtx.strokeStyle = p.color;
+          
+          p.tiltAngle += p.tiltAngleIncrement;
+          p.y += (Math.cos(angle + p.d) + 1 + p.r / 2) / 2;
+          p.tilt = Math.sin(p.tiltAngle) * 15;
+          
+          if (p.y > canvas.height) {
+            if (i % 5 > 0 || i % 2 == 0) {
+              particles[i] = {
+                x: Math.random() * canvas.width,
+                y: -10,
+                r: p.r,
+                d: p.d,
+                color: p.color,
+                tilt: Math.floor(Math.random() * 10) - 10,
+                tiltAngle: p.tiltAngle,
+                tiltAngleIncrement: p.tiltAngleIncrement
+              };
+            }
+          }
+          
+          confettiCtx.moveTo(p.x + p.tilt + p.r, p.y);
+          confettiCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r);
+          confettiCtx.stroke();
+        }
+        
+        if (confettiActive) {
+          requestAnimationFrame(drawConfetti);
+        } else {
+          confettiCtx.clearRect(0, 0, canvas.width, canvas.height);
+          canvas.classList.add("hidden");
+        }
+      }
+      
+      drawConfetti();
+      
+      setTimeout(() => {
+        confettiActive = false;
+      }, 3000);
+    }
+
+    function init() {
+      document.querySelector("#items-input").value = items.map(s => s.label).join("\n");
+      document.querySelector("#update-items").addEventListener("click", updateItems);
+      document.querySelector("#remove-winner").addEventListener("click", removeWinner);
+      document.querySelector("#how-to-use").addEventListener("click", () => {
+        document.querySelector("#modal").classList.remove("hidden");
+      });
+      document.querySelector("#close-modal").addEventListener("click", () => {
+        document.querySelector("#modal").classList.add("hidden");
+      });
+
+      // Preset buttons
+      document.querySelectorAll(".preset-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          loadPreset(btn.dataset.preset);
+        });
+      });
+
+      items.forEach(drawItem);
+      rotate();
+      engine();
+      spinEl.addEventListener("click", () => {
+        if (!angVel && items.length > 0) angVel = rand(0.25, 0.45);
+        spinButtonClicked = true;
+      });
+    }
+
+    events.addListener("spinEnd", (item) => {
+      console.log(`Woop! You won ${item.label}`);
+    });
+
+    init();
+  </script>
+</body>
+</html>
