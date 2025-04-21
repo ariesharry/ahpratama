@@ -55,7 +55,7 @@ const home = {
   headline: <>Aries H Pratama</>,
   subline: (
     <>
-      Insights from a <InlineCode>Researcher</InlineCode>, exploring emerging opportunities in <InlineCode>advanced digital technologies</InlineCode>
+      Exploring emerging opportunities in <InlineCode>advanced digital technologies</InlineCode>
     </>
   ),
 };

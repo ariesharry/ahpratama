@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Group Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .group-card {
+            transition: all 0.3s ease;
+        }
+        .group-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        textarea {
+            min-height: 150px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-indigo-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="https://ahpratama.vercel.app" class="flex items-center space-x-2 hover:text-indigo-200 transition">
+                <i class="fas fa-home text-xl"></i>
+                <span class="font-bold text-lg">Home</span>
+            </a>
+            <button id="howToUseBtn" class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition flex items-center space-x-2">
+                <i class="fas fa-question-circle"></i>
+                <span>How to Use</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-4xl font-bold text-center text-indigo-700 mb-2">Random Group Generator</h1>
+            <p class="text-center text-gray-600 mb-8">Easily create random groups from a list of names</p>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Input Section -->
+                    <div>
+                        <h2 class="text-xl font-semibold mb-4 text-gray-800">Input Settings</h2>
+                        
+                        <div class="mb-4">
+                            <label for="names" class="block text-sm font-medium text-gray-700 mb-2">Names (one per line)</label>
+                            <textarea id="names" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="John Doe&#10;Jane Smith&#10;Mike Johnson"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuration Section -->
+                    <div>
+                        <h2 class="text-xl font-semibold mb-4 text-gray-800">Group Configuration</h2>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="groupCount" class="block text-sm font-medium text-gray-700 mb-2">Number of Groups</label>
+                                <input type="number" id="groupCount" min="1" value="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="distributionType" class="block text-sm font-medium text-gray-700 mb-2">Distribution</label>
+                                <select id="distributionType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="equal">Equal Size</option>
+                                    <option value="range">Size Range</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="sizeRangeContainer" class="hidden grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label for="minMembers" class="block text-sm font-medium text-gray-700 mb-2">Min Members</label>
+                                <input type="number" id="minMembers" min="1" value="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="maxMembers" class="block text-sm font-medium text-gray-700 mb-2">Max Members</label>
+                                <input type="number" id="maxMembers" min="1" value="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-center">
+                            <button id="generateBtn" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center space-x-2">
+                                <i class="fas fa-random"></i>
+                                <span>Generate Groups</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="resultsContainer" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">Generated Groups</h2>
+                    <button id="copyResultsBtn" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition flex items-center space-x-2">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy Results</span>
+                    </button>
+                </div>
+                
+                <div id="groupsContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">© 2023 Random Group Generator. All rights reserved.</p>
+            <div class="flex justify-center space-x-4">
+                <a href="#" class="hover:text-indigo-300 transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="hover:text-indigo-300 transition"><i class="fab fa-github"></i></a>
+                <a href="#" class="hover:text-indigo-300 transition"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- How to Use Modal -->
+    <div id="howToUseModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">How to Use</h3>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-4 text-gray-700">
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-100 text-indigo-600 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-1 text-xs"></i>
+                    </div>
+                    <p>Enter all names in the text area, one name per line.</p>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-100 text-indigo-600 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-2 text-xs"></i>
+                    </div>
+                    <p>Set the number of groups you want to create.</p>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-100 text-indigo-600 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-3 text-xs"></i>
+                    </div>
+                    <p>Choose between equal size groups or set a range for group sizes.</p>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-100 text-indigo-600 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-4 text-xs"></i>
+                    </div>
+                    <p>Click "Generate Groups" to create random groups.</p>
+                </div>
+                
+                <div class="flex items-start space-x-3">
+                    <div class="bg-indigo-100 text-indigo-600 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                        <i class="fas fa-5 text-xs"></i>
+                    </div>
+                    <p>Copy the results or generate new groups as needed.</p>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <button id="closeModalBtn2" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+                    Got it!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const howToUseBtn = document.getElementById('howToUseBtn');
+            const howToUseModal = document.getElementById('howToUseModal');
+            const closeModalBtns = document.querySelectorAll('#closeModalBtn, #closeModalBtn2');
+            const generateBtn = document.getElementById('generateBtn');
+            const distributionType = document.getElementById('distributionType');
+            const sizeRangeContainer = document.getElementById('sizeRangeContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const groupsContainer = document.getElementById('groupsContainer');
+            const copyResultsBtn = document.getElementById('copyResultsBtn');
+            
+            // Toggle size range inputs based on distribution type
+            distributionType.addEventListener('change', function() {
+                if (this.value === 'range') {
+                    sizeRangeContainer.classList.remove('hidden');
+                } else {
+                    sizeRangeContainer.classList.add('hidden');
+                }
+            });
+            
+            // Modal handling
+            howToUseBtn.addEventListener('click', () => {
+                howToUseModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    howToUseModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                });
+            });
+            
+            // Generate groups
+            generateBtn.addEventListener('click', generateGroups);
+            
+            // Copy results
+            copyResultsBtn.addEventListener('click', copyResults);
+            
+            function generateGroups() {
+                // Get input values
+                const namesText = document.getElementById('names').value.trim();
+                const groupCount = parseInt(document.getElementById('groupCount').value);
+                const distribution = document.getElementById('distributionType').value;
+                const minMembers = parseInt(document.getElementById('minMembers').value);
+                const maxMembers = parseInt(document.getElementById('maxMembers').value);
+                
+                // Validate inputs
+                if (!namesText) {
+                    alert('Please enter at least one name');
+                    return;
+                }
+                
+                if (isNaN(groupCount) || groupCount < 1) {
+                    alert('Please enter a valid number of groups');
+                    return;
+                }
+                
+                if (distribution === 'range' && (isNaN(minMembers) || isNaN(maxMembers) || minMembers < 1 || maxMembers < 1 || minMembers > maxMembers)) {
+                    alert('Please enter valid min and max group sizes');
+                    return;
+                }
+                
+                // Process names
+                const names = namesText.split('\n').filter(name => name.trim() !== '');
+                const shuffledNames = [...names].sort(() => Math.random() - 0.5);
+                
+                // Create groups
+                let groups = [];
+                
+                if (distribution === 'equal') {
+                    // Equal distribution
+                    const membersPerGroup = Math.floor(names.length / groupCount);
+                    let remainder = names.length % groupCount;
+                    
+                    let currentIndex = 0;
+                    for (let i = 0; i < groupCount; i++) {
+                        const groupSize = membersPerGroup + (remainder-- > 0 ? 1 : 0);
+                        groups.push(shuffledNames.slice(currentIndex, currentIndex + groupSize));
+                        currentIndex += groupSize;
+                    }
+                } else {
+                    // Range distribution
+                    let remainingNames = [...shuffledNames];
+                    
+                    for (let i = 0; i < groupCount; i++) {
+                        if (remainingNames.length === 0) break;
+                        
+                        // Random size within range, but don't exceed remaining names
+                        const maxPossible = Math.min(maxMembers, remainingNames.length);
+                        const minPossible = Math.min(minMembers, remainingNames.length);
+                        
+                        // If last group, take all remaining names
+                        if (i === groupCount - 1) {
+                            groups.push(remainingNames);
+                            remainingNames = [];
+                        } else {
+                            // Random size between min and max (or remaining names if less than min)
+                            const groupSize = remainingNames.length <= minPossible ? 
+                                remainingNames.length : 
+                                Math.floor(Math.random() * (maxPossible - minPossible + 1)) + minPossible;
+                            
+                            groups.push(remainingNames.splice(0, groupSize));
+                        }
+                    }
+                }
+                
+                // Display groups
+                displayGroups(groups);
+            }
+            
+            function displayGroups(groups) {
+                groupsContainer.innerHTML = '';
+                
+                groups.forEach((group, index) => {
+                    const groupCard = document.createElement('div');
+                    groupCard.className = 'group-card bg-white rounded-xl shadow-md p-4 border-l-4 border-indigo-500 fade-in';
+                    
+                    const groupHeader = document.createElement('div');
+                    groupHeader.className = 'flex justify-between items-center mb-3';
+                    
+                    const groupTitle = document.createElement('h3');
+                    groupTitle.className = 'font-bold text-lg text-indigo-700';
+                    groupTitle.textContent = `Group ${index + 1}`;
+                    
+                    const groupSize = document.createElement('span');
+                    groupSize.className = 'bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full';
+                    groupSize.textContent = `${group.length} members`;
+                    
+                    groupHeader.appendChild(groupTitle);
+                    groupHeader.appendChild(groupSize);
+                    
+                    const memberList = document.createElement('ul');
+                    memberList.className = 'space-y-2';
+                    
+                    group.forEach(member => {
+                        const memberItem = document.createElement('li');
+                        memberItem.className = 'flex items-center space-x-2';
+                        
+                        const icon = document.createElement('i');
+                        icon.className = 'fas fa-user text-gray-500';
+                        
+                        const name = document.createElement('span');
+                        name.className = 'text-gray-700';
+                        name.textContent = member;
+                        
+                        memberItem.appendChild(icon);
+                        memberItem.appendChild(name);
+                        memberList.appendChild(memberItem);
+                    });
+                    
+                    groupCard.appendChild(groupHeader);
+                    groupCard.appendChild(memberList);
+                    groupsContainer.appendChild(groupCard);
+                });
+                
+                resultsContainer.classList.remove('hidden');
+                resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function copyResults() {
+                const groupElements = document.querySelectorAll('.group-card');
+                let textToCopy = '';
+                
+                groupElements.forEach((group, index) => {
+                    const title = group.querySelector('h3').textContent;
+                    const members = Array.from(group.querySelectorAll('li span')).map(span => span.textContent);
+                    
+                    textToCopy += `${title}\n`;
+                    textToCopy += members.join('\n');
+                    textToCopy += '\n\n';
+                });
+                
+                navigator.clipboard.writeText(textToCopy.trim()).then(() => {
+                    // Show copied feedback
+                    const originalText = copyResultsBtn.querySelector('span').textContent;
+                    copyResultsBtn.querySelector('span').textContent = 'Copied!';
+                    copyResultsBtn.classList.remove('bg-gray-200', 'hover:bg-gray-300');
+                    copyResultsBtn.classList.add('bg-green-100', 'text-green-700');
+                    
+                    setTimeout(() => {
+                        copyResultsBtn.querySelector('span').textContent = originalText;
+                        copyResultsBtn.classList.remove('bg-green-100', 'text-green-700');
+                        copyResultsBtn.classList.add('bg-gray-200', 'hover:bg-gray-300');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('Failed to copy results. Please try again.');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
